@@ -69,12 +69,19 @@
             Acceso exclusivo para empresas registradas
           </small>
           <hr class="my-2">
-          <p class="mb-0">
-            ¿No tienes cuenta?
-            <a href="{% url 'devices:register' %}" class="text-decoration-none fw-medium">
-              Regístrate aquí
-            </a>
-          </p>
+          <div class="d-flex justify-content-between">
+            <p class="mb-0">
+              ¿No tienes cuenta?
+              <a href="{% url 'devices:register' %}" class="text-decoration-none fw-medium">
+                Regístrate aquí
+              </a>
+            </p>
+            <p class="mb-0">
+              <a href="{% url 'devices:password_reset' %}" class="text-decoration-none fw-medium">
+                ¿Olvidaste tu contraseña?
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </div>

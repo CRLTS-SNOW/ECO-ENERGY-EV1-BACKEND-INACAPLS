@@ -1,10 +1,13 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib import messages
 from django.shortcuts import render, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.db import transaction
+from django.core.mail import send_mail
+from django.conf import settings
 
 from .models import Organization
 
@@ -108,3 +111,63 @@ def register_view(request):
             return render(request, 'devices/register.html')
     
     return render(request, 'devices/register.html')
+
+
+# =========================
+# Recuperación de contraseña (HU8)
+# =========================
+class CustomPasswordResetView(PasswordResetView):
+    """
+    Vista personalizada para solicitar recuperación de contraseña.
+    """
+    template_name = 'devices/password_reset.html'
+    email_template_name = 'devices/password_reset_email.html'
+    subject_template_name = 'devices/password_reset_subject.txt'
+    success_url = reverse_lazy('devices:password_reset_done')
+    
+    def form_valid(self, form):
+        """
+        Sobrescribir para mostrar mensaje personalizado.
+        """
+        messages.info(
+            self.request, 
+            'Si el email existe en nuestro sistema, recibirás instrucciones para recuperar tu contraseña.'
+        )
+        return super().form_valid(form)
+
+
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    """
+    Vista que confirma el envío del email de recuperación.
+    """
+    template_name = 'devices/password_reset_done.html'
+
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    """
+    Vista para confirmar la nueva contraseña.
+    """
+    template_name = 'devices/password_reset_confirm.html'
+    success_url = reverse_lazy('devices:password_reset_complete')
+    
+    def form_valid(self, form):
+        """
+        Sobrescribir para asegurar que la contraseña se guarde correctamente.
+        """
+        # Llamar al método padre para guardar la contraseña
+        response = super().form_valid(form)
+        
+        # Agregar mensaje de éxito
+        messages.success(
+            self.request, 
+            '¡Contraseña actualizada exitosamente! Ya puedes iniciar sesión con tu nueva contraseña.'
+        )
+        
+        return response
+
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    """
+    Vista que confirma el cambio exitoso de contraseña.
+    """
+    template_name = 'devices/password_reset_complete.html'
