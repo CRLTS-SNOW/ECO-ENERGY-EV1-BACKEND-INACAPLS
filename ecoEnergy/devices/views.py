@@ -151,8 +151,36 @@ def device_list(request):
 
 
 # =========================
-# Detalle de dispositivo
+# Detalle de dispositivo (HU3)
 # =========================
 def device_detail(request, pk):
+    """
+    Muestra la ficha completa de un dispositivo con:
+    - Información básica (nombre, categoría, zona)
+    - Tabla de mediciones ordenadas por fecha desc
+    - Lista de alertas con severidad
+    - Mensajes de estado vacío cuando no hay datos
+    """
     device = get_object_or_404(Device, pk=pk, deleted_at__isnull=True)
-    return render(request, "devices/device_detail.html", {"device": device})
+    
+    # Obtener mediciones del dispositivo ordenadas por fecha descendente
+    measurements = (
+        Measurement.objects.filter(device=device, deleted_at__isnull=True)
+        .order_by("-measured_at")
+    )
+    
+    # Obtener alertas del dispositivo ordenadas por fecha descendente
+    alerts = (
+        Alert.objects.filter(device=device, deleted_at__isnull=True)
+        .order_by("-occurred_at")
+    )
+    
+    return render(
+        request, 
+        "devices/device_detail.html", 
+        {
+            "device": device,
+            "measurements": measurements,
+            "alerts": alerts,
+        }
+    )
