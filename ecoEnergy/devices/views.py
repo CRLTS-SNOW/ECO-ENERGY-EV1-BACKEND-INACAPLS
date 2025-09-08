@@ -1,5 +1,6 @@
 ﻿from datetime import timedelta
 
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import models
 from django.shortcuts import get_object_or_404, render
@@ -11,6 +12,7 @@ from .models import Alert, Category, Device, Measurement, Organization
 # =========================
 # Dashboard (HU1)
 # =========================
+@login_required
 def dashboard(request):
     """
     Carga el panel con:
@@ -122,6 +124,7 @@ def dashboard(request):
 # =========================
 # Listado de dispositivos (HU2)
 # =========================
+@login_required
 def device_list(request):
     """
     Lista dispositivos con filtro por categoría y paginación.
@@ -165,6 +168,7 @@ def device_list(request):
 # =========================
 # Detalle de dispositivo (HU3)
 # =========================
+@login_required
 def device_detail(request, pk):
     """
     Muestra la ficha completa de un dispositivo con:
@@ -201,6 +205,7 @@ def device_detail(request, pk):
 # =========================
 # Listado de mediciones (HU4)
 # =========================
+@login_required
 def measurement_list(request):
     """
     Lista todas las mediciones con paginación (máximo 50 por página).
@@ -233,6 +238,7 @@ def measurement_list(request):
 # =========================
 # Listado de alertas de la semana (HU5)
 # =========================
+@login_required
 def alert_list(request):
     """
     Lista todas las alertas de la última semana con paginación.
