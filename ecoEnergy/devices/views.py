@@ -176,11 +176,43 @@ def device_detail(request, pk):
     )
     
     return render(
-        request, 
+        request,
         "devices/device_detail.html", 
         {
             "device": device,
             "measurements": measurements,
             "alerts": alerts,
         }
+    )
+
+
+# =========================
+# Listado de mediciones (HU4)
+# =========================
+def measurement_list(request):
+    """
+    Lista todas las mediciones con paginación (máximo 50 por página).
+    """
+    org = Organization.objects.filter(deleted_at__isnull=True).first()
+    if not org:
+        ctx = {"measurements": [], "org": None}
+        return render(request, "devices/measurement_list.html", ctx)
+
+    qs = (
+        Measurement.objects.filter(organization=org, deleted_at__isnull=True)
+        .select_related("device")
+        .order_by("-measured_at")
+    )
+
+    paginator = Paginator(qs, 50)  # Máximo 50 registros por página
+    page = request.GET.get("page")
+    measurements = paginator.get_page(page)
+
+    return render(
+        request,
+        "devices/measurement_list.html",
+        {
+            "measurements": measurements,
+            "org": org,
+        },
     )
