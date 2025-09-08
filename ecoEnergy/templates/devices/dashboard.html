@@ -1,92 +1,108 @@
-{# templates/devices/dashboard.html #}
-{% load static %}
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8">
-  <title>Dashboard — {{ org.name|default:"Eco Energy" }}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    .pill{min-width:2.25rem}
-    .card-hd{font-weight:700;letter-spacing:.2px}
-  </style>
-</head>
-<body class="bg-light">
-<nav class="navbar navbar-dark" style="background:#188038;">
-  <div class="container">
-    <a class="navbar-brand" href="{% url 'devices:dashboard' %}">Eco Energy</a>
+{% extends "base.html" %} {% block content %}
+<div class="container mt-4">
+  <h1 class="mb-3">Dashboard — Eco Energy</h1>
+  <p class="lead">Panel de control de dispositivos, mediciones y alertas</p>
+
+  <div class="row">
+    <!-- Tarjeta Dispositivos por Categoría -->
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm border-primary h-100">
+        <div class="card-header bg-primary text-white fw-bold">
+          Dispositivos por categoría
+        </div>
+        <div class="card-body d-flex flex-column">
+          <ul class="list-group list-group-flush flex-grow-1">
+            {% for c in by_category %}
+            <li
+              class="list-group-item d-flex justify-content-between align-items-center"
+            >
+              {{ c.category__name }}
+              <span class="badge bg-primary rounded-pill"
+                >{{ c.total }}</span
+              >
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">Sin categorías</li>
+            {% endfor %}
+          </ul>
+          <div class="text-end mt-3">
+            <a
+              href="{% url 'devices:device_list' %}"
+              class="btn btn-sm btn-outline-primary"
+            >
+              Ver todos los dispositivos
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarjeta Dispositivos por Zona -->
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm border-warning h-100">
+        <div class="card-header bg-warning fw-bold text-white">
+          Dispositivos por zona
+        </div>
+        <div class="card-body d-flex flex-column">
+          <ul class="list-group list-group-flush flex-grow-1">
+            {% for z in by_zone %}
+            <li
+              class="list-group-item d-flex justify-content-between align-items-center"
+            >
+              {{ z.zone__name }}
+              <span class="badge bg-warning text-dark rounded-pill"
+                >{{ z.total }}</span
+              >
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">Sin zonas</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
-</nav>
 
-<div class="container my-5">
-  <h1 class="display-5 text-center fw-bold mb-2">Dashboard — {{ org.name|default:"Eco Energy" }}</h1>
-  <p class="text-center text-muted mb-5">Panel de control de dispositivos, mediciones y alertas</p>
-
-  <div class="row g-4">
-    <!-- Dispositivos por categoría -->
-    <div class="col-lg-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white card-hd">Dispositivos por categoría</div>
-        <ul class="list-group list-group-flush">
-          {% for row in by_category %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span>{{ row.category__name|default:"(Sin nombre)" }}</span>
-            <span class="badge text-bg-primary rounded-pill pill">{{ row.total }}</span>
-          </li>
-          {% empty %}
-          <li class="list-group-item text-muted">Sin datos</li>
-          {% endfor %}
-        </ul>
+  <div class="row">
+    <!-- Tarjeta Alertas -->
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm border-danger h-100">
+        <div class="card-header bg-danger text-white fw-bold">
+          Alertas últimos 7 días
+        </div>
+        <div class="card-body d-flex flex-column">
+          <ul class="list-group list-group-flush flex-grow-1">
+            {% for alert in alerts_week %}
+            <li
+              class="list-group-item d-flex justify-content-between align-items-center"
+            >
+              {{ alert.severity_display }}
+              <span class="badge bg-danger rounded-pill">{{ alert.total }}</span>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">Sin alertas</li>
+            {% endfor %}
+          </ul>
+        </div>
       </div>
     </div>
 
-    <!-- Dispositivos por zona -->
-    <div class="col-lg-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-warning card-hd">Dispositivos por zona</div>
-        <ul class="list-group list-group-flush">
-          {% for row in by_zone %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span>{{ row.zone__name|default:"(Sin nombre)" }}</span>
-            <span class="badge text-bg-warning rounded-pill pill">{{ row.total }}</span>
-          </li>
-          {% empty %}
-          <li class="list-group-item text-muted">Sin datos</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-
-    <!-- Alertas últimos 7 días -->
-    <div class="col-lg-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-danger text-white card-hd">Alertas últimos 7 días</div>
-        <ul class="list-group list-group-flush">
-          {% for row in alerts_week %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span>{{ row.severity }}</span>
-            <span class="badge text-bg-danger rounded-pill pill">{{ row.total }}</span>
-          </li>
-          {% empty %}
-          <li class="list-group-item text-muted">Sin alertas</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-
-    <!-- Últimas mediciones -->
-    <div class="col-lg-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-info text-white card-hd">Últimas mediciones</div>
-        <div class="table-responsive">
-          <table class="table table-hover mb-0 align-middle">
-            <thead class="table-light">
+    <!-- Tarjeta Últimas mediciones -->
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm border-info h-100">
+        <div class="card-header bg-info text-white fw-bold">
+          Últimas mediciones
+        </div>
+        <div class="card-body d-flex flex-column">
+          <table
+            class="table table-sm table-striped align-middle mb-0 flex-grow-1"
+          >
+            <thead>
               <tr>
                 <th>Dispositivo</th>
                 <th>Fecha</th>
-                <th class="text-end">Valor</th>
-                <th class="text-end"></th>
+                <th>Valor</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -94,14 +110,21 @@
               <tr>
                 <td>{{ m.device.name }}</td>
                 <td>{{ m.measured_at|date:"Y-m-d H:i" }}</td>
-                <td class="text-end"><span class="badge text-bg-secondary">{{ m.value }}</span></td>
-                <td class="text-end">
-                  <a class="btn btn-sm btn-outline-primary"
-                     href="{% url 'devices:device_detail' m.device.id %}">Ver más</a>
+                <td><span class="badge bg-secondary">{{ m.value }}</span></td>
+                <td>
+                  <a
+                    href="{% url 'devices:device_detail' m.device.id %}"
+                    class="btn btn-sm btn-outline-primary"
+                    >Ver más</a
+                  >
                 </td>
               </tr>
               {% empty %}
-              <tr><td colspan="4" class="text-muted">Sin mediciones</td></tr>
+              <tr>
+                <td colspan="4" class="text-center text-muted">
+                  Sin mediciones
+                </td>
+              </tr>
               {% endfor %}
             </tbody>
           </table>
@@ -110,6 +133,4 @@
     </div>
   </div>
 </div>
-
-</body>
-</html>
+{% endblock %}

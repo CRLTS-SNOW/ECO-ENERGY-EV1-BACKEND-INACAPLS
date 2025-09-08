@@ -1,9 +1,11 @@
+# ecoEnergy/devices/urls.py
 from django.urls import path
-from . import views
+from .views import dashboard, device_list, device_detail
 
 app_name = "devices"
 
 urlpatterns = [
-    path("", views.dashboard, name="dashboard"),
-    path("devices/<int:pk>/", views.device_detail, name="device_detail"),
+    path("", dashboard, name="dashboard"),
+    path("devices/", device_list, name="device_list"),            # <- LISTA con filtro
+    path("devices/<int:pk>/", device_detail, name="device_detail"),
 ]
