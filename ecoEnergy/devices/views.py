@@ -94,6 +94,17 @@ def dashboard(request):
         for item in alerts_week
     ]
 
+    # Alertas recientes para el dashboard (máximo 5)
+    recent_alerts = (
+        Alert.objects.filter(
+            organization=org, 
+            occurred_at__gte=week_ago, 
+            deleted_at__isnull=True
+        )
+        .select_related("device")
+        .order_by("-occurred_at")[:5]
+    )
+
     return render(
         request,
         "devices/dashboard.html",
@@ -103,6 +114,7 @@ def dashboard(request):
             "by_category": by_category,
             "by_zone": by_zone,
             "alerts_week": alerts_week,
+            "recent_alerts": recent_alerts,
         },
     )
 
@@ -214,5 +226,69 @@ def measurement_list(request):
         {
             "measurements": measurements,
             "org": org,
+        },
+    )
+
+
+# =========================
+# Listado de alertas de la semana (HU5)
+# =========================
+def alert_list(request):
+    """
+    Lista todas las alertas de la última semana con paginación.
+    """
+    org = Organization.objects.filter(deleted_at__isnull=True).first()
+    if not org:
+        ctx = {"alerts": [], "org": None, "severity_counts": {}}
+        return render(request, "devices/alert_list.html", ctx)
+
+    week_ago = timezone.now() - timedelta(days=7)
+    
+    # Obtener alertas de la semana
+    qs = (
+        Alert.objects.filter(
+            organization=org, 
+            occurred_at__gte=week_ago, 
+            deleted_at__isnull=True
+        )
+        .select_related("device")
+        .order_by("-occurred_at")
+    )
+
+    # Conteos por severidad
+    severity_counts = (
+        Alert.objects.filter(
+            organization=org, 
+            occurred_at__gte=week_ago, 
+            deleted_at__isnull=True
+        )
+        .values("severity")
+        .annotate(total=models.Count("id"))
+    )
+    
+    # Convertir a diccionario con nombres en español
+    severity_display = {
+        'critical': 'Grave',
+        'high': 'Alta', 
+        'medium': 'Media'
+    }
+    
+    severity_counts_dict = {
+        severity_display.get(item['severity'], item['severity']): item['total']
+        for item in severity_counts
+    }
+
+    paginator = Paginator(qs, 50)  # Máximo 50 registros por página
+    page = request.GET.get("page")
+    alerts = paginator.get_page(page)
+
+    return render(
+        request,
+        "devices/alert_list.html",
+        {
+            "alerts": alerts,
+            "org": org,
+            "severity_counts": severity_counts_dict,
+            "week_ago": week_ago,
         },
     )
