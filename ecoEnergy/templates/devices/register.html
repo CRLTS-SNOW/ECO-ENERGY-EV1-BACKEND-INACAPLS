@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow">
+        <div class="card-header bg-success text-white text-center">
+          <h4 class="mb-0">
+            <i class="bi bi-building me-2"></i>
+            Eco Energy
+          </h4>
+          <small>Registro de Empresa</small>
+        </div>
+        <div class="card-body p-4">
+          <!-- Mostrar mensajes -->
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="company_name" class="form-label">
+                <i class="bi bi-building me-1"></i>
+                Nombre de la Empresa
+              </label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="company_name" 
+                name="company_name" 
+                placeholder="Mi Empresa S.A."
+                required
+                autofocus
+              >
+            </div>
+            
+            <div class="mb-3">
+              <label for="email" class="form-label">
+                <i class="bi bi-envelope me-1"></i>
+                Email Corporativo
+              </label>
+              <input 
+                type="email" 
+                class="form-control" 
+                id="email" 
+                name="email" 
+                placeholder="empresa@ejemplo.com"
+                required
+              >
+            </div>
+            
+            <div class="mb-3">
+              <label for="password" class="form-label">
+                <i class="bi bi-lock me-1"></i>
+                Contraseña
+              </label>
+              <input 
+                type="password" 
+                class="form-control" 
+                id="password" 
+                name="password" 
+                placeholder="Mínimo 8 caracteres"
+                required
+                minlength="8"
+              >
+              <div class="form-text">La contraseña debe tener al menos 8 caracteres.</div>
+            </div>
+            
+            <div class="mb-4">
+              <label for="password_confirm" class="form-label">
+                <i class="bi bi-lock-fill me-1"></i>
+                Confirmar Contraseña
+              </label>
+              <input 
+                type="password" 
+                class="form-control" 
+                id="password_confirm" 
+                name="password_confirm" 
+                placeholder="Repita su contraseña"
+                required
+                minlength="8"
+              >
+            </div>
+            
+            <div class="d-grid mb-3">
+              <button type="submit" class="btn btn-success btn-lg">
+                <i class="bi bi-person-plus me-2"></i>
+                Registrar Empresa
+              </button>
+            </div>
+          </form>
+          
+          <hr>
+          
+          <div class="text-center">
+            <p class="mb-0 text-muted">
+              ¿Ya tienes una cuenta?
+              <a href="{% url 'devices:login' %}" class="text-decoration-none fw-medium">
+                Iniciar Sesión
+              </a>
+            </p>
+          </div>
+        </div>
+        <div class="card-footer text-center text-muted">
+          <small>
+            <i class="bi bi-shield-check me-1"></i>
+            Sus datos están protegidos y seguros
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  body {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    min-height: 100vh;
+  }
+  
+  .card {
+    border: none;
+    border-radius: 15px;
+  }
+  
+  .card-header {
+    border-radius: 15px 15px 0 0 !important;
+  }
+  
+  .form-control:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+  }
+  
+  .btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    border-radius: 10px;
+  }
+  
+  .btn-success:hover {
+    background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+    transform: translateY(-1px);
+  }
+  
+  .text-decoration-none:hover {
+    text-decoration: underline !important;
+  }
+</style>
+
+<script>
+  // Validación de contraseñas en tiempo real
+  document.addEventListener('DOMContentLoaded', function() {
+    const password = document.getElementById('password');
+    const passwordConfirm = document.getElementById('password_confirm');
+    
+    function validatePasswords() {
+      if (password.value !== passwordConfirm.value) {
+        passwordConfirm.setCustomValidity('Las contraseñas no coinciden');
+      } else {
+        passwordConfirm.setCustomValidity('');
+      }
+    }
+    
+    password.addEventListener('input', validatePasswords);
+    passwordConfirm.addEventListener('input', validatePasswords);
+  });
+</script>
+{% endblock %}
